@@ -11,6 +11,12 @@ importers:
       '@tailwindcss/vite':
         specifier: 4.0.14
         version: 4.0.14(vite@6.2.2(jiti@2.4.2)(lightningcss@1.29.2))
+      jotai:
+        specifier: 2.12.2
+        version: 2.12.2(@types/react@19.0.11)(react@19.0.0)
+      jotai-location:
+        specifier: 0.5.5
+        version: 0.5.5(jotai@2.12.2(@types/react@19.0.11)(react@19.0.0))
       react:
         specifier: ^19.0.0
         version: 19.0.0
@@ -20,6 +26,9 @@ importers:
       tailwindcss:
         specifier: 4.0.14
         version: 4.0.14
+      valibot:
+        specifier: 1.0.0
+        version: 1.0.0(typescript@5.7.3)
     devDependencies:
       '@eslint/js':
         specifier: ^9.21.0
@@ -893,6 +902,23 @@ packages:
     resolution: {integrity: sha512-rg9zJN+G4n2nfJl5MW3BMygZX56zKPNVEYYqq7adpmMh4Jn2QNEwhvQlFy6jPVdcod7txZtKHWnyZiA3a0zP7A==}
     hasBin: true
 
+  jotai-location@0.5.5:
+    resolution: {integrity: sha512-6QW/7W9IJHjhbn7gRgAw4sC30k0/G6JiC4uPlKi8ZPZGYk7R7r9PyMD2eVhL4XSxxag89JxS1iSyr6BIXsB4Sw==}
+    peerDependencies:
+      jotai: '>=1.11.0'
+
+  jotai@2.12.2:
+    resolution: {integrity: sha512-oN8715y7MkjXlSrpyjlR887TOuc/NLZMs9gvgtfWH/JP47ChwO0lR2ijSwBvPMYyXRAPT+liIAhuBavluKGgtA==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=17.0.0'
+      react: '>=17.0.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      react:
+        optional: true
+
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
 
@@ -1177,6 +1203,14 @@ packages:
 
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
+
+  valibot@1.0.0:
+    resolution: {integrity: sha512-1Hc0ihzWxBar6NGeZv7fPLY0QuxFMyxwYR2sF1Blu7Wq7EnremwY2W02tit2ij2VJT8HcSkHAQqmFfl77f73Yw==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   vite@6.2.2:
     resolution: {integrity: sha512-yW7PeMM+LkDzc7CgJuRLMW2Jz0FxMOsVJ8Lv3gpgW9WLcb9cTW+121UEr1hvmfR7w3SegR5ItvYyzVz1vxNJgQ==}
@@ -2027,6 +2061,15 @@ snapshots:
 
   jiti@2.4.2: {}
 
+  jotai-location@0.5.5(jotai@2.12.2(@types/react@19.0.11)(react@19.0.0)):
+    dependencies:
+      jotai: 2.12.2(@types/react@19.0.11)(react@19.0.0)
+
+  jotai@2.12.2(@types/react@19.0.11)(react@19.0.0):
+    optionalDependencies:
+      '@types/react': 19.0.11
+      react: 19.0.0
+
   js-tokens@4.0.0: {}
 
   js-yaml@4.1.0:
@@ -2270,6 +2313,10 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
+
+  valibot@1.0.0(typescript@5.7.3):
+    optionalDependencies:
+      typescript: 5.7.3
 
   vite@6.2.2(jiti@2.4.2)(lightningcss@1.29.2):
     dependencies:
