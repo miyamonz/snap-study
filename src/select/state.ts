@@ -1,14 +1,9 @@
-import { atom, getDefaultStore, useAtomValue } from "jotai";
-import { subscribeSvgEvent } from "./Svg";
-import { sendCommandAtom } from "./command";
-import { screenToSvg } from "./screenToSvg";
-import { snapXsAtom, snapYsAtom } from "./snap";
-
-export const selectingIdsAtom = atom<string[]>([]);
-export const useIsSelecting = (shapeId: string) => {
-  const selectingIds = useAtomValue(selectingIdsAtom);
-  return selectingIds.includes(shapeId);
-};
+import { atom, getDefaultStore } from "jotai";
+import { sendCommandAtom } from "../command";
+import { screenToSvg } from "../screenToSvg";
+import { getSnapPoint } from "../snap/getSnapPoint";
+import { subscribeSvgEvent } from "../Svg";
+import { selectingIdsAtom } from "./store";
 
 type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
   | void // 停止
@@ -18,7 +13,6 @@ type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
 const stateFnAtom = atom<{ fn: StateFn }>({
   fn: initialState,
 });
-
 const selectingEventAtom = atom(
   null,
   (get, set, e: React.PointerEvent<SVGSVGElement>) => {
@@ -47,11 +41,9 @@ function initialState(e: React.PointerEvent<SVGSVGElement>) {
     return { continue: onPointerDown };
   }
 }
-
 let downPoint: { x: number; y: number } | null = null;
 // shapeId -> { x: number; y: number }
 const startPointMap = new Map<string, { x: number; y: number }>();
-
 const onPointerDown: StateFn = (e) => {
   if (!(e.target instanceof SVGElement)) return;
   const eventTarget = e.target;
@@ -86,7 +78,6 @@ const onPointerDown: StateFn = (e) => {
 
   return pointerIsDown;
 };
-
 const outsideClicked: StateFn = (e) => {
   switch (e.type) {
     case "pointerup":
@@ -94,7 +85,6 @@ const outsideClicked: StateFn = (e) => {
       return initialState;
   }
 };
-
 const pointerIsDown: StateFn = (e) => {
   switch (e.type) {
     case "pointerup":
@@ -103,7 +93,6 @@ const pointerIsDown: StateFn = (e) => {
       return { continue: onBeforePointerMove };
   }
 };
-
 const onBeforePointerMove: StateFn = () => {
   // 選択中のshapeの初期位置を記録
   store.get(selectingIdsAtom).forEach((shapeId) => {
@@ -115,7 +104,6 @@ const onBeforePointerMove: StateFn = () => {
   });
   return { continue: onPointerMove };
 };
-
 const onPointerMove: StateFn = (e) => {
   const selectingIds = store.get(selectingIdsAtom);
   if (selectingIds.length === 0) return;
@@ -145,41 +133,6 @@ const onPointerMove: StateFn = (e) => {
 
   return pointerIsMoving;
 };
-
-function getSnapPoint(_shapeId: string, position: { x: number; y: number }) {
-  const snapXs = store.get(snapXsAtom);
-  const snapYs = store.get(snapYsAtom);
-  const threshold = 30;
-
-  const foundSnapPointX = snapXs.find((x) => {
-    const distance = Math.abs(x.v - position.x);
-    return distance < threshold;
-  });
-  if (foundSnapPointX) {
-    position.x = snap(position.x, foundSnapPointX.v, threshold);
-  }
-
-  const foundSnapPointY = snapYs.find((y) => {
-    const distance = Math.abs(y.v - position.y);
-    return distance < threshold;
-  });
-  if (foundSnapPointY) {
-    position.y = snap(position.y, foundSnapPointY.v, threshold);
-  }
-
-  return position;
-}
-function snap(a: number, b: number, threshold: number) {
-  //一般的なsnap
-  const diff = a - b;
-  if (Math.abs(diff) < threshold) return b;
-  return a;
-
-  // 連続的にsnap
-  const t = 1 - Math.abs(diff / threshold) ** 10;
-  return (1 - t) * a + t * b;
-}
-
 const pointerIsMoving: StateFn = (e) => {
   switch (e.type) {
     case "pointerup":
@@ -188,14 +141,12 @@ const pointerIsMoving: StateFn = (e) => {
       return { continue: onPointerMove };
   }
 };
-
 const onPointerUp: StateFn = () => {
   return { continue: pointerIsUp };
 };
 const pointerIsUp: StateFn = () => {
   return initialState;
 };
-
 function getShapePosition(target: SVGElement) {
   if (target.tagName === "svg") return null;
   if (!target.dataset.shapePosition) return null;

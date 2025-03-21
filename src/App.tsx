@@ -2,10 +2,10 @@ import { DraggingRect } from "./dragEvent";
 // import { Coords } from "./Coords";
 // import { Pointer } from "./Pointer";
 import { Svg } from "./Svg";
-import { Shapes } from "./Shapes";
+import { Shapes } from "./shape/Shapes";
 import { ToastContainer } from "./Toast";
-import { SnapLines } from "./snap";
-import "./selectingEvent";
+import { SnapLines } from "./snap/SnapLines";
+import "./select/store";
 import { useOnKeyEvent } from "./keyEvent";
 function App() {
   useOnKeyEvent();

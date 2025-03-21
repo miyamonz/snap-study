@@ -1,109 +1,38 @@
-import { subscribeSvgEvent, useViewBox } from "./Svg";
-import { atom, getDefaultStore, useAtomValue } from "jotai";
-import { screenToSvg } from "./screenToSvg";
-import { Shape, shapeAtomFamily, shapesAtom } from "./state";
-import { atomFamily } from "jotai/utils";
-import { selectingIdsAtom } from "./selectingEvent";
-
-type SnapHandle = { id: string; type: "x" | "y"; v: number };
-export const snapXsAtom = atom<SnapHandle[]>((get) => {
-  const shapes = get(shapesAtom);
-  const selectedShapeIds = get(selectingIdsAtom);
-  return shapes
-    .filter((shape) => !selectedShapeIds.includes(shape.shapeId))
-    .map((shape) => {
-      return {
-        id: shape.shapeId,
-        type: "x",
-        v: shape.x,
-      };
-    });
-});
-
-const snapXsAtomFamily = atomFamily((snapHandleId: string) =>
-  atom(
-    (get) => {
-      const shape = get(shapeAtomFamily(snapHandleId));
-      if (!shape) return { id: snapHandleId, type: "x", v: 0 } as const;
-      return { id: snapHandleId, type: "x", v: shape.x } as const;
-    },
-    (get, set, v: number) => {
-      const snapHandle = get(snapXsAtomFamily(snapHandleId));
-      set(shapesAtom, (prev) => {
-        const shapes = prev.map((shape) => {
-          if (isOnSnapHandle(snapHandle, shape)) {
-            return { ...shape, x: v };
-          }
-          return shape;
-        });
-        return shapes;
-      });
-    }
-  )
-);
-const snappedShapesXsAtomFamily = atomFamily((snapHandleId: string) =>
-  atom((get) => {
-    const snapHandle = get(snapXsAtomFamily(snapHandleId));
-    const shapes = get(shapesAtom);
-    return shapes.filter((shape) => isOnSnapHandle(snapHandle, shape));
-  })
-);
-
-export const snapYsAtom = atom<SnapHandle[]>((get) => {
-  const shapes = get(shapesAtom);
-  const selectedShapeIds = get(selectingIdsAtom);
-  return shapes
-    .filter((shape) => !selectedShapeIds.includes(shape.shapeId))
-    .map((shape) => {
-      return {
-        id: shape.shapeId,
-        type: "y",
-        v: shape.y,
-      };
-    });
-});
-
-const snapYsAtomFamily = atomFamily((snapHandleId: string) =>
-  atom(
-    (get) => {
-      const shape = get(shapeAtomFamily(snapHandleId));
-      if (!shape) return { id: snapHandleId, type: "y", v: 0 } as const;
-      return { id: snapHandleId, type: "y", v: shape.y } as const;
-    },
-    (get, set, v: number) => {
-      const snapHandle = get(snapYsAtomFamily(snapHandleId));
-      set(shapesAtom, (prev) => {
-        const shapes = prev.map((shape) => {
-          if (isOnSnapHandle(snapHandle, shape)) {
-            return { ...shape, y: v };
-          }
-          return shape;
-        });
-        return shapes;
-      });
-    }
-  )
-);
-
-const snappedShapesYsAtomFamily = atomFamily((snapHandleId: string) =>
-  atom((get) => {
-    const snapHandle = get(snapYsAtomFamily(snapHandleId));
-    const shapes = get(shapesAtom);
-    return shapes.filter((shape) => isOnSnapHandle(snapHandle, shape));
-  })
-);
+import { useAtomValue, atom, getDefaultStore } from "jotai";
+import { screenToSvg } from "../screenToSvg";
+import {
+  snapXsAtom,
+  snapYsAtom,
+  type SnapHandle,
+  snappedShapesXsAtomFamily,
+  snappedShapesYsAtomFamily,
+  snapXsAtomFamily,
+  snapYsAtomFamily,
+} from "./store";
+import { useViewBox, subscribeSvgEvent } from "../Svg";
 
 export function SnapLines() {
-  const snapXs = useAtomValue(snapXsAtom);
-  const snapYs = useAtomValue(snapYsAtom);
   return (
     <>
-      {/* x */}
+      <SnapLinesX />
+      <SnapLinesY />
+    </>
+  );
+}
+function SnapLinesX() {
+  const snapXs = useAtomValue(snapXsAtom);
+  return (
+    <>
       {snapXs.map((x) => (
         <SnapHandleX key={`x:${x.id}`} snapHandle={x} />
       ))}
-
-      {/* y */}
+    </>
+  );
+}
+function SnapLinesY() {
+  const snapYs = useAtomValue(snapYsAtom);
+  return (
+    <>
       {snapYs.map((y) => (
         <SnapHandleY key={`y:${y.id}`} snapHandle={y} />
       ))}
@@ -129,7 +58,6 @@ function SnapHandleX({ snapHandle }: { snapHandle: SnapHandle }) {
     </>
   );
 }
-
 function LineX({ v, ...rest }: { v: number } & React.SVGProps<SVGLineElement>) {
   const { rect, scale } = useViewBox();
   const strokeWidth = 1 * scale;
@@ -145,7 +73,6 @@ function LineX({ v, ...rest }: { v: number } & React.SVGProps<SVGLineElement>) {
     />
   );
 }
-
 function SnapHandleY({ snapHandle }: { snapHandle: SnapHandle }) {
   const { scale } = useViewBox();
   const snappedShapes = useAtomValue(snappedShapesYsAtomFamily(snapHandle.id));
@@ -162,7 +89,6 @@ function SnapHandleY({ snapHandle }: { snapHandle: SnapHandle }) {
     </>
   );
 }
-
 function LineY({ v, ...rest }: { v: number } & React.SVGProps<SVGLineElement>) {
   const { rect, scale } = useViewBox();
   const strokeWidth = 1 * scale;
@@ -183,25 +109,27 @@ let currentState: StateFn = initialState;
 const onKeyEventAtom = atom(
   null,
   (_get, _set, e: React.PointerEvent<SVGSVGElement>) => {
-    if (!(e.target instanceof SVGElement)) return;
-    const snapHandle = getSnapHandle(e.target);
-    if (!snapHandle) return;
-
-    let fn = currentState;
-    while (fn) {
-      const next = fn(e);
-      console.log(fn.name, next);
-      if (next && "continue" in next) {
-        fn = next.continue;
-        continue;
-      }
-      if (next) currentState = next;
-      break;
-    }
+    onPointerEvent(e);
   }
 );
-subscribeSvgEvent(onKeyEventAtom);
+function onPointerEvent(e: React.PointerEvent<SVGSVGElement>) {
+  if (!(e.target instanceof SVGElement)) return;
+  const snapHandle = getSnapHandle(e.target);
+  if (!snapHandle) return;
 
+  let fn = currentState;
+  while (fn) {
+    const next = fn(e);
+    console.log(fn.name, next);
+    if (next && "continue" in next) {
+      fn = next.continue;
+      continue;
+    }
+    if (next) currentState = next;
+    break;
+  }
+}
+subscribeSvgEvent(onKeyEventAtom);
 function getSnapHandle(target: SVGElement) {
   const snapHandle = target.dataset.snapHandle;
   if (!snapHandle) return null;
@@ -211,7 +139,6 @@ function getSnapHandle(target: SVGElement) {
     return null;
   }
 }
-
 type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
   | void // 停止
   | StateFn // 遷移
@@ -223,19 +150,8 @@ function initialState(e: React.PointerEvent<SVGSVGElement>) {
     return { continue: onPointerDown };
   }
 }
-
 let downPoint: { x: number; y: number } | null = null;
 let startValue: number | null = null;
-
-function isOnSnapHandle(snapHandle: SnapHandle, shape: Shape) {
-  if (snapHandle.type === "x") {
-    return shape.x === snapHandle.v;
-  }
-  if (snapHandle.type === "y") {
-    return shape.y === snapHandle.v;
-  }
-  return false;
-}
 const onPointerDown: StateFn = (e) => {
   if (!(e.target instanceof SVGElement)) return;
   const eventTarget = e.target;
@@ -248,7 +164,6 @@ const onPointerDown: StateFn = (e) => {
   e.target.setPointerCapture(e.pointerId);
   return pointerIsDown;
 };
-
 const pointerIsDown: StateFn = (e) => {
   switch (e.type) {
     case "pointerup":
@@ -257,7 +172,6 @@ const pointerIsDown: StateFn = (e) => {
       return pointerIsMoving;
   }
 };
-
 const pointerIsMoving: StateFn = (e) => {
   if (!(e.target instanceof SVGElement)) return;
   if (!downPoint) return;
@@ -270,16 +184,14 @@ const pointerIsMoving: StateFn = (e) => {
   const snapHandle = getSnapHandle(e.target);
   if (!snapHandle) return;
   if (!startValue) return;
-  const s = startValue;
 
   switch (snapHandle.type) {
     case "x": {
-      store.set(snapXsAtomFamily(snapHandle.id), s + diff.x);
+      store.set(snapXsAtomFamily(snapHandle.id), startValue + diff.x);
       break;
     }
     case "y": {
-      store.set(snapYsAtomFamily(snapHandle.id), s + diff.y);
-
+      store.set(snapYsAtomFamily(snapHandle.id), startValue + diff.y);
       break;
     }
   }

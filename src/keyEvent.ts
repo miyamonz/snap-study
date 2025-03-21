@@ -1,7 +1,8 @@
 import { atom, useAtomValue } from "jotai";
 import { toast } from "./Toast";
-import { Shape, shapesAtom } from "./state";
-import { selectingIdsAtom } from "./selectingEvent";
+import { Shape } from "./shape/type";
+import { shapesAtom } from "./shape/store";
+import { selectingIdsAtom } from "./select/store";
 
 const selectingShapesAtom = atom((get) => {
   const shapes = get(shapesAtom);

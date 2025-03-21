@@ -1,8 +1,9 @@
 import { atom, useAtomValue, getDefaultStore } from "jotai";
 import { screenToSvg } from "./screenToSvg";
 import { subscribeSvgEvent } from "./Svg";
-import { shapesAtom, isCrossRect } from "./state";
-import { selectingIdsAtom } from "./selectingEvent";
+import { isCrossRect } from "./shape/isCrossRect";
+import { shapesAtom } from "./shape/store";
+import { selectingIdsAtom } from "./select/store";
 
 const dragEventAtom = atom(
   null,

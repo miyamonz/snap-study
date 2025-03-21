@@ -1,5 +1,6 @@
 import { atom } from "jotai";
-import { Shape, shapesAtom } from "./state";
+import { Shape } from "./shape/type";
+import { shapesAtom } from "./shape/store";
 
 type Command = MoveShapeCommand;
 
