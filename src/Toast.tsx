@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { atom, useAtom, useSetAtom } from "jotai";
+import { atom, useAtom } from "jotai";
 import { getDefaultStore } from "jotai/vanilla";
 
 // Define the type for a toast message
@@ -10,15 +10,9 @@ export type Toast = {
   duration?: number; // Duration in milliseconds
 };
 
-// Get the default Jotai store
-const toastStore = getDefaultStore();
-
-// Create an atom to store the list of active toasts
-const toastsAtom = atom<Toast[]>([]);
-
-// Helper function to generate unique IDs
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
+const toastsAtom = atom<Toast[]>([]);
 const toastDuration = 2000;
 
 // Toast function to add a new toast
@@ -27,8 +21,7 @@ export function toast(
   type: Toast["type"] = "info",
   duration = toastDuration
 ) {
-  // Get the current state from the store
-  const currentToasts = toastStore.get(toastsAtom);
+  const store = getDefaultStore();
 
   const newToast: Toast = {
     id: generateId(),
@@ -37,22 +30,18 @@ export function toast(
     duration,
   };
 
-  // Add the new toast to the store
-  toastStore.set(toastsAtom, [...currentToasts, newToast]);
+  store.set(toastsAtom, (prev) => [...prev, newToast]);
 
   // Automatically remove the toast after duration
   setTimeout(() => {
-    const toasts = toastStore.get(toastsAtom);
-    toastStore.set(
-      toastsAtom,
-      toasts.filter((toast) => toast.id !== newToast.id)
+    store.set(toastsAtom, (prev) =>
+      prev.filter((toast) => toast.id !== newToast.id)
     );
   }, duration);
 
   return newToast.id;
 }
 
-// Individual Toast Item Component
 function ToastItem({
   toast,
   onRemove,
@@ -126,20 +115,6 @@ function ToastItem({
 export function ToastContainer() {
   const [toasts, setToasts] = useAtom(toastsAtom);
 
-  // Sync with the external store only on mount
-  useEffect(() => {
-    // Subscribe to the store to get updates for toasts added via the toast() function
-    const unsubscribe = toastStore.sub(toastsAtom, () => {
-      const storeToasts = toastStore.get(toastsAtom);
-      // Only update if there's a difference to avoid unnecessary renders
-      if (JSON.stringify(storeToasts) !== JSON.stringify(toasts)) {
-        setToasts(storeToasts);
-      }
-    });
-
-    return unsubscribe;
-  }, [setToasts]);
-
   const removeToast = (id: string) => {
     setToasts((currentToasts) =>
       currentToasts.filter((toast) => toast.id !== id)
@@ -155,44 +130,4 @@ export function ToastContainer() {
       ))}
     </div>
   );
-}
-
-// Hook to use toast inside React components
-export function useToast() {
-  const setToasts = useSetAtom(toastsAtom);
-
-  return {
-    show: (message: string, type: Toast["type"] = "info", duration: number) => {
-      const id = generateId();
-      const newToast = { id, message, type, duration };
-
-      setToasts((toasts) => [...toasts, newToast]);
-
-      if (duration > 0) {
-        setTimeout(() => {
-          setToasts((toasts) => toasts.filter((t) => t.id !== id));
-        }, duration);
-      }
-
-      return id;
-    },
-    success: (message: string, duration: number) => {
-      return toast(message, "success", duration);
-    },
-    error: (message: string, duration: number) => {
-      return toast(message, "error", duration);
-    },
-    info: (message: string, duration: number) => {
-      return toast(message, "info", duration);
-    },
-    warning: (message: string, duration: number) => {
-      return toast(message, "warning", duration);
-    },
-    dismiss: (id: string) => {
-      setToasts((toasts) => toasts.filter((t) => t.id !== id));
-    },
-    dismissAll: () => {
-      setToasts([]);
-    },
-  };
 }

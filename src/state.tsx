@@ -1,5 +1,6 @@
+import { SetStateAction } from "jotai";
 import { atom, useAtomValue } from "jotai";
-
+import { atomFamily } from "jotai/utils";
 export type Shape = Rect | Circle;
 
 type Identity = {
@@ -34,7 +35,7 @@ export const shapesAtom = atom<Shape[]>([
     y: 100,
     width: 100,
     height: 100,
-    fill: "red",
+    fill: "lightblue",
     stroke: "black",
     strokeWidth: 1,
   },
@@ -44,11 +45,31 @@ export const shapesAtom = atom<Shape[]>([
     x: 200,
     y: 500,
     r: 100,
-    fill: "blue",
+    fill: "lightgreen",
     stroke: "black",
     strokeWidth: 1,
   },
 ]);
+
+export const shapeAtomFamily = atomFamily((shapeId: string) =>
+  atom(
+    (get) => {
+      const shapes = get(shapesAtom);
+      return shapes.find((shape) => shape.shapeId === shapeId);
+    },
+    (_get, set, shape: SetStateAction<Shape>) => {
+      set(shapesAtom, (prev) => {
+        return prev.map((s) => {
+          if (s.shapeId === shapeId) {
+            const newShape = typeof shape === "function" ? shape(s) : shape;
+            return newShape;
+          }
+          return s;
+        });
+      });
+    }
+  )
+);
 
 export function useShapes() {
   return useAtomValue(shapesAtom);

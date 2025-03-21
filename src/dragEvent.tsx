@@ -10,7 +10,6 @@ const dragEventAtom = atom(
     let fn = currentState;
     while (fn) {
       const next = fn(e);
-      console.log("fn", fn.name, next);
       if (next && "continue" in next) {
         fn = next.continue;
         continue;

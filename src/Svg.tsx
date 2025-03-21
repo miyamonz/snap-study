@@ -92,25 +92,30 @@ const viewBoxAtom = atom((get) => {
 export function useViewBox() {
   const viewBox = useAtomValue(viewBoxAtom);
   const scale = useAtomValue(scaleAtom);
-  const setScale = useSetAtom(scaleAtom);
-  const setCenter = useSetAtom(centerAtom);
 
   return {
     rect: viewBox,
+    scale,
     viewBox: `${viewBox.x} ${viewBox.y} ${viewBox.width} ${viewBox.height}`,
-    handleWheel: (e: React.WheelEvent<SVGSVGElement>) => {
-      const { deltaX, deltaY } = e;
-      if (e.ctrlKey) {
-        // zoom
-        const deltaScale = (100 + deltaY) / 100;
-        setScale((prev) => prev * deltaScale);
-      } else {
-        setCenter((prev) => ({
-          x: prev.x + deltaX * scale,
-          y: prev.y + deltaY * scale,
-        }));
-      }
-    },
+  };
+}
+function useViewBoxHandleWheel() {
+  const scale = useAtomValue(scaleAtom);
+  const setScale = useSetAtom(scaleAtom);
+  const setCenter = useSetAtom(centerAtom);
+
+  return (e: React.WheelEvent<SVGSVGElement>) => {
+    const { deltaX, deltaY } = e;
+    if (e.ctrlKey) {
+      // zoom
+      const deltaScale = (100 + deltaY) / 100;
+      setScale((prev) => prev * deltaScale);
+    } else {
+      setCenter((prev) => ({
+        x: prev.x + deltaX * scale,
+        y: prev.y + deltaY * scale,
+      }));
+    }
   };
 }
 
@@ -119,7 +124,8 @@ function Svg_({
   ...rest
 }: { children: React.ReactNode } & React.SVGProps<SVGSVGElement>) {
   const setPointerPosition = useSetPointerPosition();
-  const { viewBox, handleWheel } = useViewBox();
+  const { viewBox } = useViewBox();
+  const handleWheel = useViewBoxHandleWheel();
   const setSvgPointerEvent = useSetAtom(svgPointerEventAtom);
   return (
     <svg

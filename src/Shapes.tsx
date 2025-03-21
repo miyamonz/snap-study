@@ -25,6 +25,7 @@ function ShapeContainer({ shape }: { shape: Shape }) {
     <Fragment>
       {isSelecting && <Shape shape={selectingShape} />}
       <Shape shape={shape} />
+      {isSelecting && <ShapeUI shape={shape} />}
     </Fragment>
   );
 }
@@ -67,4 +68,34 @@ function Shape({ shape }: { shape: Shape }) {
         />
       );
   }
+}
+
+function ShapeUI({ shape }: { shape: Shape }) {
+  const w = 10;
+  return (
+    <g className="pointer-events-none">
+      <circle
+        cx={shape.x}
+        cy={shape.y}
+        r={5}
+        stroke="gray"
+        strokeWidth={1}
+        fill="none"
+      />
+      <line
+        x1={shape.x - w}
+        y1={shape.y}
+        x2={shape.x + w}
+        y2={shape.y}
+        stroke="gray"
+      />
+      <line
+        x1={shape.x}
+        y1={shape.y - w}
+        x2={shape.x}
+        y2={shape.y + w}
+        stroke="gray"
+      />
+    </g>
+  );
 }
