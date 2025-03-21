@@ -10,30 +10,32 @@ type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
   | StateFn // 遷移
   | { continue: StateFn }; // 移譲
 
-const stateFnAtom = atom<{ fn: StateFn }>({
-  fn: initialState,
-});
+let stateFn: StateFn = initialState;
+
+function onPointerEvent(e: React.PointerEvent<SVGSVGElement>) {
+  while (stateFn) {
+    const next = stateFn(e);
+    // console.log("next", next);
+    // 移譲
+    if (next && "continue" in next) {
+      stateFn = next.continue;
+      continue;
+    }
+    // 遷移
+    if (next) stateFn = next;
+    break;
+  }
+  // console.groupEnd();
+}
 const selectingEventAtom = atom(
   null,
-  (get, set, e: React.PointerEvent<SVGSVGElement>) => {
-    let { fn } = get(stateFnAtom);
-    // console.group("stateFn", stateFn.name);
-    while (fn) {
-      const next = fn(e);
-      // console.log("next", nextStateFn.name, next);
-      // 移譲
-      if (next && "continue" in next) {
-        fn = next.continue;
-        continue;
-      }
-      // 遷移
-      if (next) set(stateFnAtom, { fn: next });
-      break;
-    }
-    // console.groupEnd();
+  (_get, _set, e: React.PointerEvent<SVGSVGElement>) => {
+    onPointerEvent(e);
   }
 );
-subscribeSvgEvent(selectingEventAtom);
+export function registerSelectingEvent() {
+  subscribeSvgEvent(selectingEventAtom);
+}
 
 const store = getDefaultStore();
 function initialState(e: React.PointerEvent<SVGSVGElement>) {

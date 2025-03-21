@@ -52,7 +52,7 @@ function SnapHandleX({ snapHandle }: { snapHandle: SnapHandle }) {
         className={`stroke-transparent hover:stroke-green-400 ${
           snappedShapes.length > 1 ? "stroke-green-400" : ""
         }`}
-        strokeWidth={10 * scale}
+        strokeWidth={15 * scale}
       />
       <LineX v={snapHandle.v} strokeDasharray="2 2" />
     </>
@@ -83,7 +83,7 @@ function SnapHandleY({ snapHandle }: { snapHandle: SnapHandle }) {
         data-snap-handle={JSON.stringify(snapHandle)}
         v={snapHandle.v}
         className={`stroke-transparent hover:stroke-green-400`}
-        strokeWidth={10 * scale}
+        strokeWidth={15 * scale}
       />
       <LineY v={snapHandle.v} strokeDasharray="2 2" />
     </>
@@ -129,7 +129,10 @@ function onPointerEvent(e: React.PointerEvent<SVGSVGElement>) {
     break;
   }
 }
-subscribeSvgEvent(onKeyEventAtom);
+export function registerSnapEvent() {
+  subscribeSvgEvent(onKeyEventAtom);
+}
+
 function getSnapHandle(target: SVGElement) {
   const snapHandle = target.dataset.snapHandle;
   if (!snapHandle) return null;

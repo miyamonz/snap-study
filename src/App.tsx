@@ -1,12 +1,17 @@
-import { DraggingRect } from "./dragEvent";
+import { DraggingRect, registerDragEvent } from "./select/dragEvent";
 // import { Coords } from "./Coords";
 // import { Pointer } from "./Pointer";
 import { Svg } from "./Svg";
 import { Shapes } from "./shape/Shapes";
 import { ToastContainer } from "./Toast";
-import { SnapLines } from "./snap/SnapLines";
-import "./select/store";
+import { SnapLines, registerSnapEvent } from "./snap/SnapLines";
+import { registerSelectingEvent } from "./select/state";
 import { useOnKeyEvent } from "./keyEvent";
+
+registerSelectingEvent();
+registerDragEvent();
+registerSnapEvent();
+
 function App() {
   useOnKeyEvent();
   return (
@@ -20,19 +25,25 @@ function App() {
         <Shapes />
       </Svg>
       {/* tool */}
-      <div className="absolute bottom-2 w-full h-10 bg-slate-200">
-        <div className="flex items-center gap-2">
-          <button className="w-10 h-10 bg-blue-500">rect</button>
-          <button className="w-10 h-10 bg-blue-500">circle</button>
-          <button className="w-10 h-10 bg-blue-500">ellipse</button>
-          <button className="w-10 h-10 bg-blue-500">line</button>
-          <button className="w-10 h-10 bg-blue-500">polyline</button>
-          <button className="w-10 h-10 bg-blue-500">polygon</button>
-        </div>
-      </div>
-      {/*  */}
+      {/* <div className="absolute bottom-2 w-full h-10 bg-slate-200">
+        <Tool />
+      </div> */}
     </div>
   );
 }
+// function Tool() {
+//   return (
+//     <>
+//       <div className="flex items-center gap-2">
+//         <button className="w-10 h-10 bg-blue-500">rect</button>
+//         <button className="w-10 h-10 bg-blue-500">circle</button>
+//         <button className="w-10 h-10 bg-blue-500">ellipse</button>
+//         <button className="w-10 h-10 bg-blue-500">line</button>
+//         <button className="w-10 h-10 bg-blue-500">polyline</button>
+//         <button className="w-10 h-10 bg-blue-500">polygon</button>
+//       </div>
+//     </>
+//   );
+// }
 
 export default App;

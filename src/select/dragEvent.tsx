@@ -1,9 +1,9 @@
 import { atom, useAtomValue, getDefaultStore } from "jotai";
-import { screenToSvg } from "./screenToSvg";
-import { subscribeSvgEvent } from "./Svg";
-import { isCrossRect } from "./shape/isCrossRect";
-import { shapesAtom } from "./shape/store";
-import { selectingIdsAtom } from "./select/store";
+import { screenToSvg } from "../screenToSvg";
+import { subscribeSvgEvent } from "../Svg";
+import { isCrossRect } from "../shape/isCrossRect";
+import { shapesAtom } from "../shape/store";
+import { selectingIdsAtom } from "./store";
 
 const dragEventAtom = atom(
   null,
@@ -20,7 +20,9 @@ const dragEventAtom = atom(
     }
   }
 );
-subscribeSvgEvent(dragEventAtom);
+export function registerDragEvent() {
+  subscribeSvgEvent(dragEventAtom);
+}
 type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
   | void // 停止
   | StateFn // 遷移
@@ -57,6 +59,14 @@ const draggingRectAtom = atom<Rect | null>((get) => {
 
   return rect;
 });
+
+const crossingShapesAtom = atom((get) => {
+  const draggingRect = get(draggingRectAtom);
+  if (!draggingRect) return [];
+  const shapes = get(shapesAtom);
+  return shapes.filter((shape) => isCrossRect(shape, draggingRect));
+});
+
 const pointerIsDown: StateFn = (e) => {
   const downPoint = screenToSvg(e);
   store.set(startPointAtom, downPoint);
@@ -85,10 +95,8 @@ const pointerIsUp: StateFn = () => {
   if (!draggingRect) return initialState;
 
   // 交差している図形を選択
-  const shapes = store.get(shapesAtom);
-  const shapeIds = shapes
-    .filter((shape) => isCrossRect(shape, draggingRect))
-    .map((shape) => shape.shapeId);
+  const crossingShapes = store.get(crossingShapesAtom);
+  const shapeIds = crossingShapes.map((shape) => shape.shapeId);
   if (shapeIds.length > 0) {
     store.set(selectingIdsAtom, shapeIds);
   }
