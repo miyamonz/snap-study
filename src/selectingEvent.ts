@@ -146,7 +146,7 @@ const onPointerMove: StateFn = (e) => {
   return pointerIsMoving;
 };
 
-function getSnapPoint(shapeId: string, position: { x: number; y: number }) {
+function getSnapPoint(_shapeId: string, position: { x: number; y: number }) {
   const snapXs = store.get(snapXsAtom);
   const snapYs = store.get(snapYsAtom);
   const threshold = 30;

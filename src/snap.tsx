@@ -182,7 +182,7 @@ function LineY({ v, ...rest }: { v: number } & React.SVGProps<SVGLineElement>) {
 let currentState: StateFn = initialState;
 const onKeyEventAtom = atom(
   null,
-  (get, set, e: React.PointerEvent<SVGSVGElement>) => {
+  (_get, _set, e: React.PointerEvent<SVGSVGElement>) => {
     if (!(e.target instanceof SVGElement)) return;
     const snapHandle = getSnapHandle(e.target);
     if (!snapHandle) return;
