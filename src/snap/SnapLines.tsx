@@ -40,7 +40,7 @@ function SnapLinesY() {
 function SnapHandleX({ snapHandle }: { snapHandle: SnapHandle }) {
   const { scale } = useViewBox();
   const snappedShapes = useAtomValue(snappedShapesXsAtomFamily(snapHandle.id));
-  // if (snappedShapes.length <= 1) return null;
+  if (snappedShapes.length <= 1) return null;
   return (
     <>
       <LineX

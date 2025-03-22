@@ -60,7 +60,13 @@ export const snapYsAtomFamily = atomFamily((snapHandleId: string) =>
     (get) => {
       const shape = get(shapeAtomFamily(snapHandleId));
       if (!shape) return { id: snapHandleId, type: "y", v: 0 } as const;
-      return { id: snapHandleId, type: "y", v: shape.y } as const;
+
+      const snapPoints = getSnapPoints(shape.shapeId);
+      const snapPoint = snapPoints.find(
+        (snapPoint) => snapPoint.name === "center"
+      );
+      if (!snapPoint) return { id: snapHandleId, type: "y", v: 0 } as const;
+      return { id: snapHandleId, type: "y", v: snapPoint.y } as const;
     },
     (get, set, v: number) => {
       const snapHandle = get(snapYsAtomFamily(snapHandleId));
