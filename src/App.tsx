@@ -1,4 +1,4 @@
-import { DraggingRect, registerDragEvent } from "./select/dragEvent";
+import { DraggingRect, registerDragEvent } from "./select/DraggingRect";
 // import { Coords } from "./Coords";
 // import { Pointer } from "./Pointer";
 import { Svg } from "./Svg";

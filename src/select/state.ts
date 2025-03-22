@@ -1,9 +1,11 @@
 import { getDefaultStore } from "jotai";
 import { sendCommandAtom } from "../command";
 import { screenToSvg } from "../screenToSvg";
-import { getSnapPoint } from "../snap/getSnapPoint";
+import { fixToSnap } from "../snap/fixToSnap";
 import { subscribeSvgEvent } from "../Svg";
 import { selectingIdsAtom } from "./store";
+import { shapeAtomFamily } from "../shape/store";
+import { getSnapPoints } from "../shape/getSnapPoints";
 
 type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
   | void // 停止
@@ -93,11 +95,10 @@ const pointerIsDown: StateFn = (e) => {
 const onBeforePointerMove: StateFn = () => {
   // 選択中のshapeの初期位置を記録
   store.get(selectingIdsAtom).forEach((shapeId) => {
-    const selectingShape = document.getElementById(shapeId);
-    if (!(selectingShape instanceof SVGElement)) return;
-    const shapePosition = getShapePosition(selectingShape);
-    if (!shapePosition) return;
-    startPointMap.set(shapeId, shapePosition);
+    const shape = store.get(shapeAtomFamily(shapeId));
+    if (!shape) return;
+    const startPoint = { x: shape.x, y: shape.y };
+    startPointMap.set(shapeId, startPoint);
   });
   return { continue: onPointerMove };
 };
@@ -107,7 +108,7 @@ const onPointerMove: StateFn = (e) => {
 
   if (!downPoint) return;
   const currentPoint = screenToSvg(e);
-  const diff = {
+  const pointerDiff = {
     x: currentPoint.x - downPoint.x,
     y: currentPoint.y - downPoint.y,
   };
@@ -116,15 +117,15 @@ const onPointerMove: StateFn = (e) => {
     const startPoint = startPointMap.get(shapeId);
     if (!startPoint) return;
     const position = {
-      x: startPoint.x + diff.x,
-      y: startPoint.y + diff.y,
+      x: startPoint.x + pointerDiff.x,
+      y: startPoint.y + pointerDiff.y,
     };
-    const snapPoint = getSnapPoint(shapeId, position);
+    const snappedPoint = fixToSnap(shapeId, position);
 
     store.set(sendCommandAtom, {
       type: "moveShape",
       shapeId,
-      position: snapPoint,
+      position: snappedPoint,
     });
   });
 

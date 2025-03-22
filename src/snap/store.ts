@@ -4,6 +4,7 @@ import { shapeAtomFamily, shapesAtom } from "../shape/store";
 import { atomFamily } from "jotai/utils";
 import { selectingIdsAtom } from "../select/store";
 import { sendCommandAtom } from "../command";
+import { getSnapPoints } from "../shape/getSnapPoints";
 const notSelectedShapeIdsAtom = atom((get) => {
   const shapes = get(shapesAtom);
   const selectedShapeIds = get(selectingIdsAtom);
@@ -23,7 +24,13 @@ export const snapXsAtomFamily = atomFamily((snapHandleId: string) =>
     (get) => {
       const shape = get(shapeAtomFamily(snapHandleId));
       if (!shape) return { id: snapHandleId, type: "x", v: 0 } as const;
-      return { id: snapHandleId, type: "x", v: shape.x } as const;
+
+      const snapPoints = getSnapPoints(shape.shapeId);
+      const snapPoint = snapPoints.find(
+        (snapPoint) => snapPoint.name === "center"
+      );
+      if (!snapPoint) return { id: snapHandleId, type: "x", v: 0 } as const;
+      return { id: snapHandleId, type: "x", v: snapPoint.x } as const;
     },
     (get, set, v: number) => {
       const snapHandle = get(snapXsAtomFamily(snapHandleId));
@@ -75,11 +82,17 @@ export const snappedShapesYsAtomFamily = atomFamily((snapHandleId: string) =>
 );
 
 export function isOnSnapHandle(snapHandle: SnapHandle, shape: Shape) {
-  if (snapHandle.type === "x") {
-    return shape.x === snapHandle.v;
-  }
-  if (snapHandle.type === "y") {
-    return shape.y === snapHandle.v;
-  }
-  return false;
+  return findSnapPointOnHandle(snapHandle, shape) !== undefined;
+}
+
+export function findSnapPointOnHandle(snapHandle: SnapHandle, shape: Shape) {
+  const snapPoints = getSnapPoints(shape.shapeId);
+  return snapPoints.find((snapPoint) => {
+    switch (snapHandle.type) {
+      case "x":
+        return snapPoint.x === snapHandle.v;
+      case "y":
+        return snapPoint.y === snapHandle.v;
+    }
+  });
 }

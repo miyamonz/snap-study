@@ -17,7 +17,7 @@ function onPointerEvent(e: React.PointerEvent<SVGSVGElement>) {
   let fn = currentState;
   while (fn) {
     const next = fn(e);
-    console.log(fn.name, next);
+    // console.log(fn.name, next);
     if (next && "continue" in next) {
       fn = next.continue;
       continue;

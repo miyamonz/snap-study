@@ -2,6 +2,7 @@ import { Fragment } from "react/jsx-runtime";
 import { useShapes } from "./store";
 import type { Shape } from "./type";
 import { useIsSelecting } from "../select/store";
+import { getSnapPoints } from "./getSnapPoints";
 export function Shapes() {
   const shapes = useShapes();
 
@@ -71,31 +72,23 @@ function Shape({ shape }: { shape: Shape }) {
 }
 
 function ShapeUI({ shape }: { shape: Shape }) {
-  const w = 10;
+  const snapPoints = getSnapPoints(shape.shapeId);
   return (
     <g className="pointer-events-none">
-      <circle
-        cx={shape.x}
-        cy={shape.y}
-        r={5}
-        stroke="gray"
-        strokeWidth={1}
-        fill="none"
-      />
-      <line
-        x1={shape.x - w}
-        y1={shape.y}
-        x2={shape.x + w}
-        y2={shape.y}
-        stroke="gray"
-      />
-      <line
-        x1={shape.x}
-        y1={shape.y - w}
-        x2={shape.x}
-        y2={shape.y + w}
-        stroke="gray"
-      />
+      {snapPoints.map((snapPoint) => (
+        <SnapPointCursor key={snapPoint.name} x={snapPoint.x} y={snapPoint.y} />
+      ))}
+    </g>
+  );
+}
+
+function SnapPointCursor({ x, y }: { x: number; y: number }) {
+  const w = 10;
+  return (
+    <g>
+      <circle cx={x} cy={y} r={5} stroke="gray" strokeWidth={1} fill="none" />
+      <line x1={x - w} y1={y} x2={x + w} y2={y} stroke="gray" />
+      <line x1={x} y1={y - w} x2={x} y2={y + w} stroke="gray" />
     </g>
   );
 }

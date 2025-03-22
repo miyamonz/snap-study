@@ -1,7 +1,12 @@
 import { atom } from "jotai";
 import { Shape } from "./shape/type";
 import { baseShapesAtom } from "./shape/store";
-import { isOnSnapHandle, SnapHandle } from "./snap/store";
+import {
+  findSnapPointOnHandle,
+  isOnSnapHandle,
+  SnapHandle,
+} from "./snap/store";
+import { getSnapPoints } from "./shape/getSnapPoints";
 
 type Command =
   | MoveShapeCommand
@@ -10,7 +15,7 @@ type Command =
   | MoveShapesByHandleCommand;
 
 export const sendCommandAtom = atom(null, (_get, set, command: Command) => {
-  console.log("sendCommand", command);
+  // console.log("sendCommand", command);
 
   set(baseShapesAtom, (prev) => {
     switch (command.type) {
@@ -75,11 +80,14 @@ function moveShapesByHandle(
   command: MoveShapesByHandleCommand
 ): Shape[] {
   return prev.map((shape) => {
-    if (isOnSnapHandle(command.snapHandle, shape)) {
-      return {
-        ...shape,
-        [command.snapHandle.type]: command.v,
-      };
+    const foundSnapPoint = findSnapPointOnHandle(command.snapHandle, shape);
+    if (foundSnapPoint) {
+      switch (command.snapHandle.type) {
+        case "x":
+          return { ...shape, x: command.v - foundSnapPoint.offsetX };
+        case "y":
+          return { ...shape, y: command.v - foundSnapPoint.offsetY };
+      }
     }
     return shape;
   });
