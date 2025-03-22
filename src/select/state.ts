@@ -5,7 +5,6 @@ import { fixToSnap } from "../snap/fixToSnap";
 import { subscribeSvgEvent } from "../Svg";
 import { selectingIdsAtom } from "./store";
 import { shapeAtomFamily } from "../shape/store";
-import { getSnapPoints } from "../shape/getSnapPoints";
 
 type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
   | void // 停止
@@ -145,13 +144,3 @@ const onPointerUp: StateFn = () => {
 const pointerIsUp: StateFn = () => {
   return initialState;
 };
-function getShapePosition(target: SVGElement) {
-  if (target.tagName === "svg") return null;
-  if (!target.dataset.shapePosition) return null;
-  try {
-    return JSON.parse(target.dataset.shapePosition) as { x: number; y: number };
-  } catch (e) {
-    console.error(e);
-    return null;
-  }
-}
