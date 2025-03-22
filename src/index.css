@@ -10,3 +10,10 @@ body {
 body {
   overflow: hidden;
 }
+
+/* 左右のスクロールを禁止 */
+html {
+  display: flex;
+  overflow-x: scroll;
+  overscroll-behavior-x: contain;
+}
