@@ -1,8 +1,8 @@
-import { atom, SetStateAction, useAtomValue } from "jotai";
+import { atom, useAtomValue } from "jotai";
 import { atomFamily } from "jotai/utils";
 import { Shape } from "./type";
 
-export const shapesAtom = atom<Shape[]>([
+export const baseShapesAtom = atom<Shape[]>([
   {
     shapeId: "1",
     type: "rect",
@@ -35,25 +35,13 @@ export const shapesAtom = atom<Shape[]>([
     strokeWidth: 1,
   },
 ]);
+export const shapesAtom = atom((get) => get(baseShapesAtom));
 
 export const shapeAtomFamily = atomFamily((shapeId: string) =>
-  atom(
-    (get) => {
-      const shapes = get(shapesAtom);
-      return shapes.find((shape) => shape.shapeId === shapeId);
-    },
-    (_get, set, shape: SetStateAction<Shape>) => {
-      set(shapesAtom, (prev) => {
-        return prev.map((s) => {
-          if (s.shapeId === shapeId) {
-            const newShape = typeof shape === "function" ? shape(s) : shape;
-            return newShape;
-          }
-          return s;
-        });
-      });
-    }
-  )
+  atom((get) => {
+    const shapes = get(shapesAtom);
+    return shapes.find((shape) => shape.shapeId === shapeId);
+  })
 );
 
 export function useShapes() {

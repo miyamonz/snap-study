@@ -1,4 +1,4 @@
-import { atom, getDefaultStore } from "jotai";
+import { getDefaultStore } from "jotai";
 import { sendCommandAtom } from "../command";
 import { screenToSvg } from "../screenToSvg";
 import { getSnapPoint } from "../snap/getSnapPoint";
@@ -27,14 +27,9 @@ function onPointerEvent(e: React.PointerEvent<SVGSVGElement>) {
   }
   // console.groupEnd();
 }
-const selectingEventAtom = atom(
-  null,
-  (_get, _set, e: React.PointerEvent<SVGSVGElement>) => {
-    onPointerEvent(e);
-  }
-);
+
 export function registerSelectingEvent() {
-  subscribeSvgEvent(selectingEventAtom);
+  subscribeSvgEvent(onPointerEvent);
 }
 
 const store = getDefaultStore();

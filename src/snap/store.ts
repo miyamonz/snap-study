@@ -3,7 +3,7 @@ import { Shape } from "../shape/type";
 import { shapeAtomFamily, shapesAtom } from "../shape/store";
 import { atomFamily } from "jotai/utils";
 import { selectingIdsAtom } from "../select/store";
-
+import { sendCommandAtom } from "../command";
 const notSelectedShapeIdsAtom = atom((get) => {
   const shapes = get(shapesAtom);
   const selectedShapeIds = get(selectingIdsAtom);
@@ -27,14 +27,10 @@ export const snapXsAtomFamily = atomFamily((snapHandleId: string) =>
     },
     (get, set, v: number) => {
       const snapHandle = get(snapXsAtomFamily(snapHandleId));
-      set(shapesAtom, (prev) => {
-        const shapes = prev.map((shape) => {
-          if (isOnSnapHandle(snapHandle, shape)) {
-            return { ...shape, x: v };
-          }
-          return shape;
-        });
-        return shapes;
+      set(sendCommandAtom, {
+        type: "moveShapesByHandle",
+        snapHandle,
+        v: v,
       });
     }
   )
@@ -61,14 +57,10 @@ export const snapYsAtomFamily = atomFamily((snapHandleId: string) =>
     },
     (get, set, v: number) => {
       const snapHandle = get(snapYsAtomFamily(snapHandleId));
-      set(shapesAtom, (prev) => {
-        const shapes = prev.map((shape) => {
-          if (isOnSnapHandle(snapHandle, shape)) {
-            return { ...shape, y: v };
-          }
-          return shape;
-        });
-        return shapes;
+      set(sendCommandAtom, {
+        type: "moveShapesByHandle",
+        snapHandle,
+        v: v,
       });
     }
   )
@@ -82,7 +74,7 @@ export const snappedShapesYsAtomFamily = atomFamily((snapHandleId: string) =>
   })
 );
 
-function isOnSnapHandle(snapHandle: SnapHandle, shape: Shape) {
+export function isOnSnapHandle(snapHandle: SnapHandle, shape: Shape) {
   if (snapHandle.type === "x") {
     return shape.x === snapHandle.v;
   }

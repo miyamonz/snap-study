@@ -3,14 +3,13 @@ import { toast } from "./Toast";
 import { Shape } from "./shape/type";
 import { shapesAtom } from "./shape/store";
 import { selectingIdsAtom } from "./select/store";
+import { sendCommandAtom } from "./command";
 
 const selectingShapesAtom = atom((get) => {
   const shapes = get(shapesAtom);
   const selectingIds = get(selectingIdsAtom);
   return shapes.filter((shape) => selectingIds.includes(shape.shapeId));
 });
-
-const randomId = () => Math.random().toString(36).substring(2, 15);
 
 const onKeyEventAtom = atom(null, (get, set, e: KeyboardEvent) => {
   console.log(e.key);
@@ -56,25 +55,23 @@ const onKeyEventAtom = atom(null, (get, set, e: KeyboardEvent) => {
     e.preventDefault();
     const shapes = get(selectingIdsAtom);
     if (shapes.length === 0) return;
-    set(shapesAtom, (prev) =>
-      prev.filter((shape) => !shapes.includes(shape.shapeId))
-    );
+    set(sendCommandAtom, { type: "deleteShape", shapeIds: shapes });
     set(selectingIdsAtom, []);
     return;
   }
 });
 
-const paseShapesAtom = atom(null, async (_get, set) => {
+const paseShapesAtom = atom(null, async (get, set) => {
   console.log("shapes pasted");
   const shapes = (await getFromClipboard()) as Shape[] | null;
   if (!shapes) return;
 
-  const newShapes = shapes.map((shape) => ({
-    ...shape,
-    shapeId: randomId(),
-  }));
-  set(shapesAtom, (prev) => [...prev, ...newShapes]);
+  // commandが返り値を得られるといいのだが
+  const prevShapes = get(shapesAtom);
+  set(sendCommandAtom, { type: "addShape", shapes: shapes });
+  const nextShapes = get(shapesAtom);
 
+  const newShapes = nextShapes.filter((shape) => !prevShapes.includes(shape));
   // 追加したshapeを選択状態にする
   set(
     selectingIdsAtom,

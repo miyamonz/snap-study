@@ -3,7 +3,6 @@ import { atom, useAtomValue, useSetAtom } from "jotai";
 import { useSetPointerPosition } from "./pointerPosition";
 import { screenToSvg } from "./screenToSvg";
 import { useEffect, useRef, useState } from "react";
-import { WritableAtom } from "jotai";
 
 // disable body zoom
 document.body.addEventListener(
@@ -152,18 +151,13 @@ function Svg_({
 
 const svgPointerEventAtom = atom(
   null,
-  (_get, set, e: React.PointerEvent<SVGSVGElement>) => {
-    listenerAtom.forEach((atom) => {
-      set(atom, e);
-    });
+  (_get, _set, e: React.PointerEvent<SVGSVGElement>) => {
+    listeners.forEach((l) => l(e));
   }
 );
-type SubscribedAtom = WritableAtom<
-  unknown,
-  [e: React.PointerEvent<SVGSVGElement>],
-  void
->;
-const listenerAtom = new Set<SubscribedAtom>();
-export function subscribeSvgEvent(atom: SubscribedAtom) {
-  listenerAtom.add(atom);
+
+const listeners = new Set<SvgPointerEventHandler>();
+type SvgPointerEventHandler = (e: React.PointerEvent<SVGSVGElement>) => void;
+export function subscribeSvgEvent(atom: SvgPointerEventHandler) {
+  listeners.add(atom);
 }

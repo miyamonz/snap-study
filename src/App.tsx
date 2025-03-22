@@ -4,7 +4,8 @@ import { DraggingRect, registerDragEvent } from "./select/dragEvent";
 import { Svg } from "./Svg";
 import { Shapes } from "./shape/Shapes";
 import { ToastContainer } from "./Toast";
-import { SnapLines, registerSnapEvent } from "./snap/SnapLines";
+import { SnapLines } from "./snap/SnapLines";
+import { registerSnapEvent } from "./snap/state";
 import { registerSelectingEvent } from "./select/state";
 import { useOnKeyEvent } from "./keyEvent";
 

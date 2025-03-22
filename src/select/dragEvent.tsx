@@ -5,23 +5,20 @@ import { isCrossRect } from "../shape/isCrossRect";
 import { shapesAtom } from "../shape/store";
 import { selectingIdsAtom } from "./store";
 
-const dragEventAtom = atom(
-  null,
-  (_get, _set, e: React.PointerEvent<SVGSVGElement>) => {
-    let fn = currentState;
-    while (fn) {
-      const next = fn(e);
-      if (next && "continue" in next) {
-        fn = next.continue;
-        continue;
-      }
-      if (next) currentState = next;
-      break;
+function subscribeDragEvent(e: React.PointerEvent<SVGSVGElement>) {
+  let fn = currentState;
+  while (fn) {
+    const next = fn(e);
+    if (next && "continue" in next) {
+      fn = next.continue;
+      continue;
     }
+    if (next) currentState = next;
+    break;
   }
-);
+}
 export function registerDragEvent() {
-  subscribeSvgEvent(dragEventAtom);
+  subscribeSvgEvent(subscribeDragEvent);
 }
 type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
   | void // 停止
