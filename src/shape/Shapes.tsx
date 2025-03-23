@@ -1,7 +1,7 @@
 import { Fragment } from "react/jsx-runtime";
-import { useShapes } from "./store";
+import { useShapes } from "./shapeStore";
 import type { Shape } from "./type";
-import { useIsSelecting } from "../select/store";
+import { useIsSelecting } from "../select/selectStore";
 import { getSnapPoints } from "./getSnapPoints";
 export function Shapes() {
   const shapes = useShapes();

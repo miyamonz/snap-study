@@ -2,8 +2,8 @@ import { atom, useAtomValue, getDefaultStore } from "jotai";
 import { screenToSvg } from "../screenToSvg";
 import { subscribeSvgEvent } from "../Svg";
 import { isCrossRect } from "../shape/isCrossRect";
-import { shapesAtom } from "../shape/store";
-import { selectingIdsAtom } from "./store";
+import { shapesAtom } from "../shape/shapeStore";
+import { selectingIdsAtom } from "./selectStore";
 
 function subscribeDragEvent(e: React.PointerEvent<SVGSVGElement>) {
   let fn = currentState;

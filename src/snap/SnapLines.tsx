@@ -5,7 +5,7 @@ import {
   type SnapHandle,
   snappedShapesXsAtomFamily,
   snappedShapesYsAtomFamily,
-} from "./store";
+} from "./snapStore";
 import { useViewBox } from "../Svg";
 
 export function SnapLines() {

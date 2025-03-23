@@ -1,5 +1,5 @@
 import { getDefaultStore } from "jotai";
-import { shapeAtomFamily } from "./store";
+import { shapeAtomFamily } from "./shapeStore";
 const store = getDefaultStore();
 export function getSnapPoints(shapeId: string) {
   const shape = store.get(shapeAtomFamily(shapeId));

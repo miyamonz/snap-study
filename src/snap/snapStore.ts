@@ -1,8 +1,8 @@
 import { atom } from "jotai";
 import { Shape } from "../shape/type";
-import { shapeAtomFamily, shapesAtom } from "../shape/store";
+import { shapeAtomFamily, shapesAtom } from "../shape/shapeStore";
 import { atomFamily } from "jotai/utils";
-import { selectingIdsAtom } from "../select/store";
+import { selectingIdsAtom } from "../select/selectStore";
 import { sendCommandAtom } from "../command";
 import { getSnapPoints } from "../shape/getSnapPoints";
 const notSelectedShapeIdsAtom = atom((get) => {

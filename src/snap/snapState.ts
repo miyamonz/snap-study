@@ -1,7 +1,7 @@
 import { getDefaultStore } from "jotai";
 import { screenToSvg } from "../screenToSvg";
 import { getSnapHandle } from "./SnapLines";
-import { snapXsAtomFamily, snapYsAtomFamily } from "./store";
+import { snapXsAtomFamily, snapYsAtomFamily } from "./snapStore";
 import { subscribeSvgEvent } from "../Svg";
 
 type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>

@@ -1,6 +1,6 @@
 import { getDefaultStore } from "jotai";
-import { snapXsAtom, snapYsAtom } from "./store";
-import { shapeAtomFamily } from "../shape/store";
+import { snapXsAtom, snapYsAtom } from "./snapStore";
+import { shapeAtomFamily } from "../shape/shapeStore";
 import { getSnapPoints } from "../shape/getSnapPoints";
 export function fixToSnap(shapeId: string, position: { x: number; y: number }) {
   const store = getDefaultStore();

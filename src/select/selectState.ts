@@ -3,8 +3,8 @@ import { sendCommandAtom } from "../command";
 import { screenToSvg } from "../screenToSvg";
 import { fixToSnap } from "../snap/fixToSnap";
 import { subscribeSvgEvent } from "../Svg";
-import { selectingIdsAtom } from "./store";
-import { shapeAtomFamily } from "../shape/store";
+import { selectingIdsAtom } from "./selectStore";
+import { shapeAtomFamily } from "../shape/shapeStore";
 
 type StateFn = (e: React.PointerEvent<SVGSVGElement>) =>
   | void // 停止

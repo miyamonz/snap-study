@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { Shape } from "./shape/type";
-import { baseShapesAtom } from "./shape/store";
-import { findSnapPointOnHandle, SnapHandle } from "./snap/store";
+import { baseShapesAtom } from "./shape/shapeStore";
+import { findSnapPointOnHandle, SnapHandle } from "./snap/snapStore";
 
 type Command =
   | MoveShapeCommand
