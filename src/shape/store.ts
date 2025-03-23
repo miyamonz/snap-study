@@ -4,7 +4,7 @@ import { Shape } from "./type";
 
 export const baseShapesAtom = atom<Shape[]>([
   {
-    shapeId: "1",
+    shapeId: "gray",
     type: "rect",
     x: 161,
     y: 42,
@@ -15,7 +15,7 @@ export const baseShapesAtom = atom<Shape[]>([
     strokeWidth: 1,
   },
   {
-    shapeId: "2",
+    shapeId: "red",
     type: "circle",
     x: 539,
     y: 92,
@@ -25,7 +25,7 @@ export const baseShapesAtom = atom<Shape[]>([
     strokeWidth: 1,
   },
   {
-    shapeId: "0rbsbddm93a",
+    shapeId: "blue",
     type: "circle",
     x: 982,
     y: 549,
@@ -35,7 +35,7 @@ export const baseShapesAtom = atom<Shape[]>([
     strokeWidth: 1,
   },
   {
-    shapeId: "e53qxitxwad",
+    shapeId: "green",
     type: "circle",
     x: 603,
     y: 410,
